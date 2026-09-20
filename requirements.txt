@@ -9,3 +9,4 @@ pymysql
 ruff
 setuptools>=78.1.1
 wheel>=0.46.2
+msgpack>=1.2.1
