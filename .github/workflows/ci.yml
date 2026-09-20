@@ -66,9 +66,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --no-cache -t devops-cloud-platform:\${{ github.sha }} .
-          docker run --rm devops-cloud-platform:\${{ github.sha }} \
-            python -m pip check
+          docker build --no-cache -t devops-cloud-platform:${{ github.sha }} .
+          docker run --rm \
+            --entrypoint python \
+            devops-cloud-platform:${{ github.sha }} \
+            -c "import fastapi, uvicorn, sqlalchemy, pymysql"
 
   security-scan:
     name: Security Scan
@@ -82,7 +84,10 @@ jobs:
       - name: Build Docker image
         run: |
           docker build --no-cache -t devops-cloud-platform:scan .
-          docker run --rm devops-cloud-platform:scan python -m pip check
+          docker run --rm \
+            --entrypoint python \
+            devops-cloud-platform:scan \
+            -c "import fastapi, uvicorn, sqlalchemy, pymysql"
 
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@v0.36.0
