@@ -9,12 +9,8 @@ RUN useradd --create-home appuser
 
 COPY requirements.txt .
 
-RUN python -m pip install --no-cache-dir --upgrade pip \
-    && python -m pip install --no-cache-dir -r requirements.txt \
-    && python -m pip install --no-cache-dir --upgrade --force-reinstall \
-    "setuptools==78.1.1" \
-    "wheel>=0.46.2" \
-    && python -c "import setuptools; assert setuptools.__version__ == '78.1.1'; print(setuptools.__version__)"
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && python -m pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 
