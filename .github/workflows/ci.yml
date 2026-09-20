@@ -68,7 +68,7 @@ jobs:
         run: |
           docker build --no-cache -t devops-cloud-platform:\${{ github.sha }} .
           docker run --rm devops-cloud-platform:\${{ github.sha }} \
-            python -c "from importlib.metadata import version; print('setuptools', version('setuptools')); print('wheel', version('wheel'))"
+            python -m pip check
 
   security-scan:
     name: Security Scan
@@ -99,8 +99,16 @@ jobs:
           fi
           echo "No vulnerable setuptools 70.3.0 or wheel 0.45.1 metadata found"
 
+      - name: Verify build tooling is absent from runtime image
+        run: |
+          if docker run --rm --entrypoint sh devops-cloud-platform:scan -c "find /usr /opt -type d \\( -iname 'setuptools-*dist-info' -o -iname 'setuptools-*egg-info' -o -iname 'wheel-*dist-info' -o -iname 'wheel-*egg-info' \\) -print -quit 2>/dev/null | grep -q ."; then
+            echo "Unexpected setuptools/wheel metadata found in runtime image"
+            exit 1
+          fi
+          echo "Runtime image contains no setuptools/wheel distribution metadata"
+
       - name: Run Trivy scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "devops-cloud-platform:scan"
           format: "table"
