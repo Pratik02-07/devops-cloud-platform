@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.13-slim-trixie AS builder
 
 WORKDIR /build
 
@@ -14,14 +14,14 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
 
 COPY app ./app
 
-FROM gcr.io/distroless/python3-debian12:nonroot
+FROM gcr.io/distroless/python3-debian13:nonroot
 
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/usr/local/lib/python3.11/site-packages
+    PYTHONPATH=/usr/local/lib/python3.13/site-packages
 
-COPY --from=builder /install/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /install/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /build/app ./app
 
 EXPOSE 8000
