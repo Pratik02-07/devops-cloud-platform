@@ -68,7 +68,7 @@ jobs:
         run: |
           docker build --no-cache -t devops-cloud-platform:\${{ github.sha }} .
           docker run --rm devops-cloud-platform:\${{ github.sha }} \
-            python -m pip show setuptools wheel
+            python -c "from importlib.metadata import version; print('setuptools', version('setuptools')); print('wheel', version('wheel'))"
 
   security-scan:
     name: Security Scan
@@ -83,12 +83,14 @@ jobs:
         run: |
           docker build --no-cache -t devops-cloud-platform:scan .
           docker run --rm devops-cloud-platform:scan \
-            python -m pip show setuptools wheel
+            python -c "from importlib.metadata import version; print('setuptools', version('setuptools')); print('wheel', version('wheel'))"
 
       - name: Verify packaging metadata locations
         run: |
           docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
-            "find /usr/local/lib/python3.11/site-packages /usr/lib/python3/dist-packages -maxdepth 2 \( -iname 'setuptools*' -o -iname 'wheel*' \) -print 2>/dev/null || true"
+            "find /usr /opt -type d \( -iname '*setuptools*' -o -iname '*wheel*' \) -print 2>/dev/null || true"
+          docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
+            "if find /usr /opt -type d \( -name 'wheel-0.45.1.dist-info' -o -name 'wheel-0.45.1.egg-info' \) -print -quit 2>/dev/null | grep -q .; then echo 'VULNERABLE wheel 0.45.1 METADATA FOUND'; exit 1; else echo 'No wheel 0.45.1 metadata found'; fi"
 
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@master
