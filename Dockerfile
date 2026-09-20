@@ -10,8 +10,12 @@ RUN useradd --create-home appuser
 COPY requirements.txt .
 
 RUN python -m pip install --no-cache-dir --upgrade pip \
-    && python -m pip install --no-cache-dir --force-reinstall \
-       "setuptools>=78.1.1" "wheel>=0.46.2" \
+    && pip uninstall -y setuptools wheel 2>/dev/null || true \
+    && rm -rf \
+       /usr/local/lib/python3.11/site-packages/setuptools* \
+       /usr/local/lib/python3.11/site-packages/wheel* \
+       /usr/lib/python3/dist-packages/setuptools* \
+       /usr/lib/python3/dist-packages/wheel* \
     && python -m pip install --no-cache-dir -r requirements.txt \
     && python -m pip check
 
