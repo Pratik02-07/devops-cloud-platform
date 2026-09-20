@@ -85,12 +85,19 @@ jobs:
           docker run --rm devops-cloud-platform:scan \
             python -c "from importlib.metadata import version; print('setuptools', version('setuptools')); print('wheel', version('wheel'))"
 
-      - name: Verify packaging metadata locations
+      - name: Verify vulnerable packaging metadata is absent
         run: |
-          docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
-            "find /usr /opt -type d \( -iname '*setuptools*' -o -iname '*wheel*' \) -print 2>/dev/null || true"
-          docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
-            "if find /usr /opt -type d \( -name 'wheel-0.45.1.dist-info' -o -name 'wheel-0.45.1.egg-info' \) -print -quit 2>/dev/null | grep -q .; then echo 'VULNERABLE wheel 0.45.1 METADATA FOUND'; exit 1; else echo 'No wheel 0.45.1 metadata found'; fi"
+          if docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
+            "find /usr /opt -type d \
+              \( -name 'setuptools-70.3.0.dist-info' \
+                 -o -name 'setuptools-70.3.0.egg-info' \
+                 -o -name 'wheel-0.45.1.dist-info' \
+                 -o -name 'wheel-0.45.1.egg-info' \) \
+              -print -quit 2>/dev/null | grep -q ."; then
+            echo "Vulnerable packaging metadata found"
+            exit 1
+          fi
+          echo "No vulnerable setuptools 70.3.0 or wheel 0.45.1 metadata found"
 
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@master
