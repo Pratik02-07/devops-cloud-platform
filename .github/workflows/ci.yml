@@ -13,10 +13,25 @@ on:
       - develop
 
 jobs:
-  # Job to check code quality and run the test suite
+  # Job to check code quality and run the test suite with a live database
   test:
     name: Test Application
     runs-on: ubuntu-latest
+
+    # Setup database container needed for the testing environment
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: devopsdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       # Pull source code into the runner
@@ -40,8 +55,10 @@ jobs:
         run: |
           ruff check .
 
-      # Execute unit/integration tests with Pytest
+      # Execute unit/integration tests with Pytest and pass the database URL
       - name: Run tests
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/devopsdb
         run: |
           pytest -v
 
