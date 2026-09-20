@@ -1,3 +1,4 @@
+![CI](https://github.com/Pratik02-07/devops-cloud-platform/actions/workflows/ci.yml/badge.svg)
 # DevOps Cloud Platform
 
 A cloud-native task management API designed as a practical DevOps portfolio project.

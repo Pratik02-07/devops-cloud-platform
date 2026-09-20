@@ -6,3 +6,4 @@ pydantic
 pytest
 httpx   
 pymysql
+ruff
