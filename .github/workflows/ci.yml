@@ -91,10 +91,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Rebuild the container locally and verify packages before scanning
+      # Rebuild the container without cache to guarantee fresh package resolution
       - name: Build Docker image
         run: |
-          docker build -t devops-cloud-platform:scan .
+          docker build --no-cache -t devops-cloud-platform:scan .
           docker run --rm devops-cloud-platform:scan \
             python -m pip show setuptools wheel
 
