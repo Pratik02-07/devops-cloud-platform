@@ -11,6 +11,9 @@ RUN useradd --create-home appuser
 COPY requirements.txt .
 
 RUN set -eux; \
+    python -m pip install --no-cache-dir --upgrade pip; \
+    python -m pip install --no-cache-dir -r requirements.txt; \
+    python -m pip check; \
     python -m pip uninstall -y setuptools wheel || true; \
     find /usr /opt -type d \
       \( \
@@ -22,26 +25,14 @@ RUN set -eux; \
         -o -name 'wheel-*.egg-info' \
       \) \
       -prune -exec rm -rf {} +; \
-    python -m pip install --no-cache-dir --upgrade pip; \
-    python -m pip install --no-cache-dir \
-      --ignore-installed \
-      'setuptools==84.0.0' \
-      'wheel==0.48.0'; \
-    python -m pip install --no-cache-dir -r requirements.txt; \
-    python -m pip check; \
-    python -c "from importlib.metadata import version; \
-      assert version('setuptools') == '84.0.0'; \
-      assert version('wheel') == '0.48.0'; \
-      print('setuptools', version('setuptools')); \
-      print('wheel', version('wheel'))"; \
     if find /usr /opt -type d \
       \( \
-        -name 'setuptools-70.3.0.dist-info' \
-        -o -name 'setuptools-70.3.0.egg-info' \
-        -o -name 'wheel-0.45.1.dist-info' \
-        -o -name 'wheel-0.45.1.egg-info' \
+        -iname 'setuptools-*dist-info' \
+        -o -iname 'setuptools-*egg-info' \
+        -o -iname 'wheel-*dist-info' \
+        -o -iname 'wheel-*egg-info' \
       \) -print -quit 2>/dev/null | grep -q .; then \
-      echo 'ERROR: vulnerable packaging metadata found in image'; \
+      echo 'ERROR: setuptools/wheel metadata remains in runtime image'; \
       exit 1; \
     fi
 
