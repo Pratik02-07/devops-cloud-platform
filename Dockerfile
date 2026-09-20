@@ -14,7 +14,7 @@ RUN set -eux; \
     python -m pip install --no-cache-dir --upgrade pip; \
     python -m pip install --no-cache-dir -r requirements.txt; \
     python -m pip check; \
-    python -m pip uninstall -y setuptools wheel || true; \
+    python -m pip uninstall -y setuptools wheel msgpack || true; \
     find /usr /opt -type d \
       \( \
         -name 'setuptools' \
@@ -23,6 +23,9 @@ RUN set -eux; \
         -o -name 'wheel' \
         -o -name 'wheel-*.dist-info' \
         -o -name 'wheel-*.egg-info' \
+        -o -name 'msgpack' \
+        -o -name 'msgpack-*.dist-info' \
+        -o -name 'msgpack-*.egg-info' \
       \) \
       -prune -exec rm -rf {} +; \
     if find /usr /opt -type d \
@@ -31,8 +34,10 @@ RUN set -eux; \
         -o -iname 'setuptools-*egg-info' \
         -o -iname 'wheel-*dist-info' \
         -o -iname 'wheel-*egg-info' \
+        -iname 'msgpack-*dist-info' \
+        -iname 'msgpack-*egg-info' \
       \) -print -quit 2>/dev/null | grep -q .; then \
-      echo 'ERROR: setuptools/wheel metadata remains in runtime image'; \
+      echo 'ERROR: stale packaging or msgpack metadata remains in runtime image'; \
       exit 1; \
     fi
 
