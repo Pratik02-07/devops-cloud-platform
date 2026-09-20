@@ -13,12 +13,10 @@ on:
       - develop
 
 jobs:
-  # Job to check code quality and run the test suite with a live database
   test:
     name: Test Application
     runs-on: ubuntu-latest
 
-    # Setup database container needed for the testing environment
     services:
       mysql:
         image: mysql:8.0
@@ -34,71 +32,64 @@ jobs:
           --health-retries=5
 
     steps:
-      # Pull source code into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Python 3.11 environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # Install pip packages from requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Check for syntax and style violations using Ruff
       - name: Run linting
         run: |
           ruff check .
 
-      # Execute unit/integration tests with Pytest and pass the database URL
       - name: Run tests
         env:
           DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/devopsdb
         run: |
           pytest -v
 
-  # Job to verify the application builds into a Docker image
   docker-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: test
 
     steps:
-      # Pull source code into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Compile Dockerfile using commit SHA and verify critical build packages
       - name: Build Docker image
         run: |
-          docker build -t devops-cloud-platform:${{ github.sha }} .
-          docker run --rm devops-cloud-platform:${{ github.sha }} \
+          docker build --no-cache -t devops-cloud-platform:\${{ github.sha }} .
+          docker run --rm devops-cloud-platform:\${{ github.sha }} \
             python -m pip show setuptools wheel
 
-  # Job to analyze the Docker image for security flaws
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: docker-build
 
     steps:
-      # Pull source code into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Rebuild the container without cache to guarantee fresh package resolution
       - name: Build Docker image
         run: |
           docker build --no-cache -t devops-cloud-platform:scan .
           docker run --rm devops-cloud-platform:scan \
             python -m pip show setuptools wheel
 
-      # Check image for CRITICAL/HIGH vulnerabilities using Trivy
+      - name: Verify packaging metadata locations
+        run: |
+          docker run --rm --entrypoint sh devops-cloud-platform:scan -c \
+            "find /usr/local/lib/python3.11/site-packages /usr/lib/python3/dist-packages -maxdepth 2 \( -iname 'setuptools*' -o -iname 'wheel*' \) -print 2>/dev/null || true"
+
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@master
         with:
