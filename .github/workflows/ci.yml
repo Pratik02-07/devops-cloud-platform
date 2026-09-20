@@ -73,10 +73,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Compile Dockerfile using commit SHA as the tag
+      # Compile Dockerfile using commit SHA and verify critical build packages
       - name: Build Docker image
         run: |
           docker build -t devops-cloud-platform:${{ github.sha }} .
+          docker run --rm devops-cloud-platform:${{ github.sha }} \
+            python -m pip show setuptools wheel
 
   # Job to analyze the Docker image for security flaws
   security-scan:
@@ -89,10 +91,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Rebuild the container locally for scanning
+      # Rebuild the container locally and verify packages before scanning
       - name: Build Docker image
         run: |
           docker build -t devops-cloud-platform:scan .
+          docker run --rm devops-cloud-platform:scan \
+            python -m pip show setuptools wheel
 
       # Check image for CRITICAL/HIGH vulnerabilities using Trivy
       - name: Run Trivy scan
