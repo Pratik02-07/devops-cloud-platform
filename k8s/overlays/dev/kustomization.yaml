@@ -4,11 +4,11 @@ kind: Kustomization
 namespace: devops-platform
 
 resources:
-  - ../../base
+- ../../base
 
 # GitHub Actions updates the newTag value automatically on every push to main.
 # Do not edit this manually — it is managed by the CI pipeline.
 images:
-  - name: devops-cloud-platform
-    newName: 570934197541.dkr.ecr.ap-south-1.amazonaws.com/devops-cloud-platform
-    newTag: 45ba2f14bcc5472cfb122f3edd98a8c073a58569
+- name: devops-cloud-platform
+  newName: 570934197541.dkr.ecr.ap-south-1.amazonaws.com/devops-cloud-platform
+  newTag: 20f599e81555f2d39c2772c5852320666e383cb7
