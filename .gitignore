@@ -23,3 +23,9 @@ venv/
 Thumbs.db
 
 resume.txt
+
+terraform.tfvars
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
