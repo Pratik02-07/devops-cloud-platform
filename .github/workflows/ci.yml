@@ -139,7 +139,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::570934197541:role/ECR-permissions
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-south-1
 
       # Authenticate Docker CLI instance directly against Amazon ECR registry
