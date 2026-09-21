@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: devops-platform
+
+resources:
+  - ../../base
+
+# GitHub Actions updates the newTag value automatically on every push to main.
+# Do not edit this manually — it is managed by the CI pipeline.
+images:
+  - name: devops-cloud-platform
+    newName: 570934197541.dkr.ecr.ap-south-1.amazonaws.com/devops-cloud-platform
+    newTag: 45ba2f14bcc5472cfb122f3edd98a8c073a58569

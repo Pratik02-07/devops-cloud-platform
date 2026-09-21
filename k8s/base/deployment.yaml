@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: devops-api
+  namespace: devops-platform
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: devops-api
+
+  template:
+    metadata:
+      labels:
+        app: devops-api
+
+    spec:
+      containers:
+        - name: devops-api
+
+          # Image name only — the actual ECR registry + tag is injected
+          # by the Kustomize overlay (k8s/overlays/dev/kustomization.yaml).
+          # This keeps the base manifest registry-agnostic.
+          image: devops-cloud-platform
+
+          ports:
+            - containerPort: 8000
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
