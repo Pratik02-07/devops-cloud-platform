@@ -121,6 +121,7 @@ jobs:
   # Job to securely authenticate via OIDC and upload verified images to Amazon ECR
   push-to-ecr:
     name: Push Image to Amazon ECR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: security-scan
 
