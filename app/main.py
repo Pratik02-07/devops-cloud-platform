@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.routes.tasks import router as tasks_router
 
@@ -17,3 +18,6 @@ def health_check():
         "status": "healthy",
         "service": "devops-cloud-platform"
     }
+
+
+Instrumentator().instrument(app).expose(app)
