@@ -26,6 +26,13 @@ spec:
           # This keeps the base manifest registry-agnostic.
           image: devops-cloud-platform
 
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: devops-api-secrets
+                  key: DATABASE_URL
+
           ports:
             - containerPort: 8000
 
