@@ -11,4 +11,4 @@ resources:
 images:
 - name: devops-cloud-platform
   newName: 570934197541.dkr.ecr.ap-south-1.amazonaws.com/devops-cloud-platform
-  newTag: 20f599e81555f2d39c2772c5852320666e383cb7
+  newTag: ffffe3b2d8c05e15399e25a1b6c3a6440a6a4205
